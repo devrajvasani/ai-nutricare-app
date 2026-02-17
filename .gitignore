@@ -1,0 +1,17 @@
+# Python cache and Pytest cache directories
+__pycache__/
+.pytest_cache/
+
+# Compiled Python files
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore all log files
+*.log
+
+# Ignore virtual environment directories
+.venv/
+
+# Ignore .env file
+.env
