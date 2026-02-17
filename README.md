@@ -1,58 +1,143 @@
-# 🥗 AI_NutriCare
+# 🥗 AI-NutriCare
 
-AI_NutriCare is an AI-powered nutrition assistant built using Python and Streamlit.  
-It provides intelligent dietary recommendations and insights using machine learning and AI models.
+**AI/ML-Based Personalized Diet Plan Generator from Medical Reports**
 
----
-
-## 🚀 Getting Started
-
-Follow the steps below to set up and run the project locally.
+AI-NutriCare analyzes patient medical reports (PDF, scanned images, text), extracts structured health metrics and doctor notes, and generates personalized diet plans tailored to individual health conditions.
 
 ---
 
-## 📌 Prerequisites
+## 📁 Project Structure
 
-- Python 3.9 or higher
-- pip (Python package manager)
-- Git (optional, for cloning)
+```
+AI-NUTRICARE-APP/
+├── app/
+│   ├── config/
+│   │   └── settings.py          # Centralized env-based configuration
+│   ├── controllers/
+│   │   └── report_controller.py # UI ↔ service bridge + validation
+│   ├── core/
+│   │   ├── ocr_engine.py        # Tesseract / EasyOCR text extraction
+│   │   ├── pdf_parser.py        # PyMuPDF / pdfplumber PDF parsing
+│   │   └── data_extractor.py    # Regex-based metric + note extraction
+│   ├── db/
+│   │   ├── connection.py        # SQLAlchemy engine + session management
+│   │   ├── models.py            # ORM models (all 8 tables)
+│   │   └── migrations/
+│   │       └── 001_initial_schema.sql
+│   ├── prompts/
+│   │   └── extraction_prompts.py  # GPT/BERT prompts (Week 5-6)
+│   ├── services/
+│   │   ├── extraction_service.py  # Full processing pipeline
+│   │   └── report_service.py      # Patient & report CRUD
+│   └── utils/
+│       ├── file_utils.py          # Upload, validation, file helpers
+│       ├── logger.py              # Loguru-based centralized logging
+│       ├── text_utils.py          # Text cleaning & parsing helpers
+│       └── validators.py          # Input validation
+├── pages/
+│   ├── 1_Upload_Report.py        # Upload + patient registration UI
+│   ├── 2_View_Reports.py         # Report status dashboard
+│   └── 3_Extracted_Data.py       # Metrics & notes viewer
+├── sample_reports/
+│   └── sample_report_john_doe.txt
+├── uploads/                       # Uploaded files (gitignored)
+├── logs/                          # Application logs (gitignored)
+├── main.py                        # Streamlit entry point
+├── requirements.txt
+├── .env.example
+└── README.md
+```
 
-Check your Python version:
+---
+
+## 🚀 Setup & Installation
+
+### 1. Clone and create virtual environment
 
 ```bash
-python --version
-1️⃣ Clone the Repository
-git clone https://github.com/your-username/AI_NutriCare.git
-cd AI_NutriCare
-If you already have the project folder, navigate into it:
-
-cd AI_NutriCare
-
-2️⃣ Create Virtual Environment
-Creating a virtual environment is recommended to manage dependencies.
-
-🔹 Windows
+git clone <repo-url>
+cd AI-NUTRICARE-APP
 python -m venv venv
-venv\Scripts\activate
-
-3️⃣ Upgrade pip (Recommended)
-python -m pip install --upgrade pip
-
-4️⃣ Install Dependencies
+source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
+```
 
-5️⃣ Setup Environment Variables (If Required)
-If your project uses API keys (e.g., OpenAI or other AI services), create a .env file in the root directory:
+### 2. Install Tesseract OCR (system dependency)
 
-touch .env
-Add your keys inside:
-⚠️ Do NOT upload your .env file to GitHub.
+```bash
+# Ubuntu / Debian
+sudo apt-get install tesseract-ocr
 
-Make sure python-dotenv is included in your requirements.txt if using environment variables.
+# macOS
+brew install tesseract
 
-▶️ Run the Streamlit Application
-Start the application with:
+# Windows: Download installer from https://github.com/UB-Mannheim/tesseract/wiki
+```
 
-streamlit run app.py
+### 3. Set up PostgreSQL
 
-The app will run at: http://localhost:8501
+```bash
+# Create database
+createdb nutricare_db
+
+# Run migrations
+psql -U postgres -d nutricare_db -f app/db/migrations/001_initial_schema.sql
+```
+
+### 4. Configure environment
+
+```bash
+cp .env.example .env
+# Edit .env with your DB credentials and paths
+```
+
+### 5. Run the app
+
+```bash
+streamlit run main.py
+```
+
+---
+
+## 🗃️ Database Schema
+
+| Table | Purpose |
+|---|---|
+| `patients` | Patient profiles and demographics |
+| `medical_reports` | Uploaded file metadata + processing status |
+| `extracted_data` | Raw OCR/parsed text (1:1 with reports) |
+| `health_metrics` | Structured numeric values (blood glucose, cholesterol, etc.) |
+| `textual_notes` | Doctor notes, prescriptions, diagnoses |
+| `allergies` | Patient food/drug allergies |
+| `dietary_preferences` | Dietary preferences (vegetarian, vegan, etc.) |
+| `diet_plans` | Generated diet plans (Week 7-8) |
+
+---
+
+## 📋 Week 1-2 Milestone Checklist
+
+- [x] Project structure and configuration setup
+- [x] PostgreSQL schema with all entities
+- [x] PDF text extraction (PyMuPDF + pdfplumber fallback)
+- [x] OCR for scanned images (Tesseract + EasyOCR fallback)
+- [x] Structured health metric extraction (regex-based)
+- [x] Doctor notes / textual section extraction
+- [x] Patient registration and management
+- [x] Report upload and processing pipeline
+- [x] Streamlit UI: Upload, View Reports, Extracted Data
+- [x] Centralized logging with loguru
+- [x] Sample medical report for testing
+
+---
+
+## 🛠 Technology Stack
+
+| Layer | Technology |
+|---|---|
+| Language | Python 3.11+ |
+| Web Framework | Streamlit |
+| Database | PostgreSQL + SQLAlchemy |
+| PDF Parsing | PyMuPDF, pdfplumber |
+| OCR | Tesseract (pytesseract), EasyOCR |
+| Logging | Loguru |
+| Config | python-dotenv + Pydantic |
